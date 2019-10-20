@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>결합게임</title>
+<style type="text/css">
+@import url('https://fonts.googleapis.com/css?family=Noto+Sans+KR&display=swap');
+body {
+	font-family: 'Noto Sans KR' ;
+}
+#container {
+	
+}
+#top_title{
+	margin-top: 5%;
+	text-align: center;
+}
+#top_hr{
+	border: 0;
+    text-align: center;
+    width: 66%;
+    height: 2px;
+    background-color: #f8585b;
+}
+#showAnswerList_title{
+	margin-left: 20%;
+}
+#showMessage_top{
+	
+}
+#showTable{
+	margin: 3% auto 0 auto;
+}
+#showMessage{
+	text-align: center;
+}
+#showMessage_mid{
+	
+}
+td{
+	border-spacing: 0px;
+	padding: 0px;
+}
+a{
+	display:block;
+	height: 75px;
+}
+#top{
+	
+}
+#top_title{
+
+}
+#top_round{
+    margin-top: 10%;
+    margin-bottom: 5%;
+    margin-left: 20%;
+}
+#showScore{
+	float: right;
+    margin-right: 20%;
+}
+#btnHint{
+    background-color: #f8585b;
+    border: none;
+    border-radius: 25px;
+    color: #fff;
+    padding: 10px 15px;
+    text-align: center;
+    font-family: 'Noto Sans KR';
+    font-size: 10px;
+    margin: 4px;
+}
+#btnHint:hover {
+	font-family: 'Noto Sans KR' ;
+    background-color: #ff0005;
+}
+#hintArea{
+	text-align: center;
+	margin-top: 3%;
+}
+
+		/* The Modal (background) */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+        }
+    
+        /* Modal Content/Box */
+        .modal-content {
+        	text-align: center;
+            background-color: #fefefe;
+            margin: 40% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%; /* Could be more or less, depending on screen size */                          
+        }
+        #roundModal-content {
+        	text-align: center;
+            background-color: #fefefe;
+            margin: 40% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%; /* Could be more or less, depending on screen size */                          
+        }
+
+</style>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.js"
+  integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+  crossorigin="anonymous"></script>
+<script type="text/javascript">
+
+    var num = [];
+    var numName = "";
+    var imgURL = "";
+    var round = 0;
+    
+    var answers = []; // 게임의 정답 (이미지의 숫자인덱스)
+    var answers2 = []; // 게임의 정답의 이해를 돕기위한 보조자료 (이미지의 숫자이름)
+    var answer = [];
+    var answer2 = [];
+    var answerLen = 0;
+    var userInput = "";
+    var userAnswers = []; // 유저가 맞춘 정답: 중복정답 방지용
+    var score = 0;
+    
+    /* 합의 갯수를 보여주는 힌트 버튼 클릭 시 호출되는 메소드 */
+    function printHap() {
+    	score--;
+    	document.getElementById("showScore").innerHTML = "<span>SCORE: "+score+"</span>"
+    	document.getElementById("btnHint").disabled = true;
+    	document.getElementById("btnHint").innerText = round+"Round "+"합의 갯수는 총 "+answerLen+"개입니다.";
+    	document.getElementById("btnHint").style.backgroundColor = "#6b6b6b"
+    }
+    
+    function gameMaker(){
+    	
+    	// 유저가 입력했던 정답은 매라운드 초기화한다.
+    	userAnswers = []; // ※ 유저가 입력했던 정답들이 1라운드때부터 누적되어 뒷 라운드 때 중복정답이 발생하는 이슈사항이 있었음.
+    	
+		// 새 라운드 시작 전, 전 라운드의 "showAnswerList" 초기화
+		round++;
+		document.getElementById("top_round").innerHTML = "<span>"+round+" Round</span>"
+		
+		// 새 라운드 시작 시, 힌트버튼 초기화 -> 이 부분도 함수로 빼기
+		document.getElementById("btnHint").disabled = false;
+    	document.getElementById("btnHint").innerText = "힌트보기: 클릭 시 1점이 감점됩니다."
+    	document.getElementById("btnHint").style.backgroundColor = "#f8585b"
+		document.getElementById("showHap").innerText = ""
+		
+		/* 아래 모달관련은 따로 함수로 빼기 */
+		
+		document.getElementById("roundModal").innerHTML =
+			"<div id='roundModal-content'>"
+			+"<p>"+round+"Round를 시작합니다."+"</p>"
+    		+"</div>";
+    	document.getElementById("roundModal").style.display = "block";
+    	setTimeout(function() {
+    		$("#roundModal").fadeOut()
+    	}, 1500);
+
+		
+    	$("#showAnswerList_cont").empty(); // 여기서 또 문제 생겼음 when 190818
+
+    	// 9개의 세자리 수를 중복없이 생성
+    	var n = ['000', '001', '002', '010', '011', '012', '020', '021', '022', 
+    		'100', '101', '102', '110', '111', '112', '120', '121', '122', 
+    		'200', '201', '202', '210', '211', '212', '220', '221', '222'];
+    	
+	    for(var i=0; i<9; i++){
+	    	var nan = Math.floor(Math.random() * 27);
+	    	// console.log(nan);
+	    	num[i] = n[nan];
+	    	for(var j=0; j<i; j++) {
+	    		if(Object.is(num[j], num[i])) {
+	    			i--;
+	    		}
+	    	}
+	    	imgURL = "<a href='javascript:isAnswer("+i+");'><img src='images/"+num[i]+".jpg' width='75px' height='75px'></a>"
+	    	// imgURL = "<img src='images/"+num[i]+".jpg' width='75px' height='75px'></a>"
+	    	id = "img"+(i+1)
+	    	// console.log("id", id, "imgURL", imgURL)
+	    	document.getElementById(id).innerHTML=imgURL;
+	    }
+	    // console.log(num)
+	    
+	    answerMaker()
+    }
+    
+    function answerMaker(){
+    	
+    	answer = [];
+    	answer2 = [];
+    	answers = [];
+    	answers2 = [];
+    	
+    	for(var a=0; a<9; a++){
+    		for(var b=a+1; b<9; b++){
+    			for(var c=b+1; c<9; c++){
+    				var val = 0;
+    				for(var i=0; i<=2; i++){
+    					val += parseInt(num[a].substr(i, 1))+parseInt(num[b].substr(i, 1))+parseInt(num[c].substr(i, 1))
+    					if(val%3!=0) break;
+    				}
+    				if(val%3==0){
+    					// answer = [a, b, c]; 
+    					answer = String(a)+String(b)+String(c) // 이미지의 숫자인덱스(0, 1, 2, ...)
+        				answers.push(answer)
+        				/* 최종완성 후 아래 2줄은 삭제예정 */
+    					answer2 = [num[a], num[b], num[c]]; // 이미지의 숫자이름(000, 001 ...)
+        				answers2.push(answer2)
+					}
+    			}
+    		}
+    	}
+    	answerLen = answers.length;
+    	hapCnt = answers.length;
+    	console.log(answers)
+    	console.log(answers2) // 삭제예정
+    	
+    }
+    
+    function play(){
+    	
+    }
+    
+    var userClickeds = []
+    var message = ""
+    function isAnswer(userClicked){
+    	
+    	userClickeds.push(userClicked)
+    	
+    	if(userClickeds.length === 3){
+    		if(hasSamed(userClickeds) < 0){
+    			message = "<p>같은 숫자를 중복으로 선택할 수 없습니다.(-1점)</p>"
+    			document.getElementById("showMessage").innerHTML=message;
+    			return;
+    		}
+    		userClickeds = sorting(userClickeds) // 입력받은 값을 오름차순으로 정렬하고, 값의 타입을 배열에서 String으로 변환
+    		// userClickeds.sort() 
+    		
+    		if(isHap(userClickeds) === 1){
+    			addMessage(1, userClickeds)
+    			userAnswers.push(userClickeds)
+    			$("#showAnswerList_cont").append(userClickeds+" ");
+    			if(hapCnt === 0){
+    				gameMaker()
+    			}
+    		} else if(isHap(userClickeds) === -1){
+    			addMessage(-1, userClickeds)
+    		} else if(isHap(userClickeds) === -2){
+    			addMessage(-2, userClickeds)
+    		}
+    		
+    		userClickeds = []
+    	}
+    }
+	
+    /* 같은 숫자 선택을 방지하는 메소드 */
+	function hasSamed(userClickeds){
+		if(userClickeds[0] === userClickeds[1]){
+			return -1;
+		} else if(userClickeds[0] === userClickeds[2]){
+			return -1;
+		} else if(userClickeds[1] === userClickeds[2]){
+			return -1;
+		} 
+		return 0;
+    }
+	
+    /* 유저가 입력한 숫자를 오름차순으로 정렬시키는 메소드 */
+	function sorting(userClickeds){
+		// console.log("정렬 전: ", userClickeds)
+		var temp = ""
+		if(userClickeds[0] > userClickeds[1]){
+			temp = ""
+			temp = userClickeds[0]
+			userClickeds[0] = userClickeds[1]
+			userClickeds[1] = temp
+		} if(userClickeds[0] > userClickeds[2]){
+			temp = ""
+			temp = userClickeds[0]
+			userClickeds[0] = userClickeds[2]
+			userClickeds[2] = temp
+		} if(userClickeds[1] > userClickeds[2]){
+			temp = ""
+			temp = userClickeds[1]
+			userClickeds[1] = userClickeds[2]
+			userClickeds[2] = temp
+		} 
+		userClickeds = String(userClickeds[0])+String(userClickeds[1])+String(userClickeds[2])
+		
+		// message = "<span>입력한 숫자: "+userClickeds+"</span>"
+		// $("#showMessage").append(message);
+		return userClickeds;
+    }
+	
+    /* 유저가 입력한 세 개의 숫자가 "합"이 되는지 판단하는 메소드 */
+	function isHap(userClickeds){			
+		for(var i = 0; i < answers.length; i++){
+			if(answers[i]===userClickeds){
+				for(var j = 0; j < userAnswers.length; j++){
+					if(userAnswers[j]===userClickeds){
+						return -2; // 정답은 맞으나, 이미 등록된 정답일 때.
+					} 
+				}
+				userAnswers.push(userClickeds)
+				return 1; // 정답
+			}
+		}
+		return -1; // 오답
+	}
+    
+    function addMessage(flag, userClickeds){
+    	if(flag === 1){
+    		message = "정답입니다. (+1점)"
+    		score++;
+    		hapCnt--;
+    	} else if(flag === -1){
+    		message = "오답입니다. (-1점)"
+    		score--;
+    	} else if(flag === -2){
+    		message = "이미 입력된 정답입니다. (-1점)"
+    		score--;
+    	}
+    	
+    	/* 라운드 당, 마지막 정답이 아닐 때에만 정답/오답 모달이 등장하고, 
+    	마지막 정답이 입력되었을 때는 모달을 띄우지 않는다. */
+    	if(hapCnt !== 0){
+    		document.getElementById("myModal").innerHTML = 
+        		"<div class='modal-content'>"
+        		+"<p>입력한 정답: "+userClickeds+"</p>"
+        		+"<p>"+message+"</p>"
+        		+"</div>"
+        	document.getElementById("myModal").style.display = "block";
+        	setTimeout(function() {
+        		$("#myModal").fadeOut()
+        	}, 1300);
+    	}
+    	
+    	// document.getElementById("showMessage").innerHTML = message
+    	// -> 모달 사용으로 인해 폐지
+    	
+    	/*
+    	$("#showMessage").append(message);
+    	$("#showMessage").show()
+    	setTimeout(function() {
+    		$("#showMessage").fadeOut()
+	    	$("#showMessage").empty()
+    	}, 1500);
+    	*/
+    	
+		document.getElementById("showScore").innerHTML = "<span>SCORE: "+score+"</span>"
+    }
+    
+    /*
+    document.onkeydown = function(e){
+        // F5, Ctrl+r, Ctrl+F5 
+        if(e.keyCode == 116 || e.ctrlKey == true && (e.keyCode == 82)){
+            e.cancelBubble = true; 
+            e.returnValue = false; 
+            if (confirm("정말 그만하시겠습니까?") == true){    //확인
+            	window.location.reload();
+            }else{   //취소
+                return;
+            }
+            return false;
+        }
+    }
+    
+    
+    window.onbeforeunload = function(e){
+    	if (confirm("정말 그만하시겠습니까?") == true){    //확인
+        	window.location.reload();
+        }else{   //취소
+            return;
+        }
+    }
+    */
+    
+    function closeIt(){
+    	event.returnValue = "창을 닫으시겠습니까?";
+    }
+    
+    /*
+    window.addEventListener(“beforeunload”, function (e) {
+    	var confirmationMessage = “\o/”;
+    	(e || window.event).returnValue = confirmationMessage; //Gecko + IE
+    	return confirmationMessage; //Webkit, Safari, Chrome
+    });
+    */                              
+
+    // When the user clicks on the button, open the modal 
+    function showModal() {
+    	
+    }
+    
+</script>
+</head>
+<body onbeforeunload="closeIt();">
+
+	<div id="container">
+	
+		<div id="top">
+			<h2 id="top_title">결합게임</h2>
+			<span id="top_round"></span>
+		    <span id="showScore">
+		    	<span>SCORE: 0</span>
+		    </span>
+		</div>
+		<hr id="top_hr">
+		
+		<div id="showMessage_top">
+			<div id="showMessage_mid">
+		    	<div id="showAnswerList">
+		    	
+				    <div id="showMessage"></div>
+		    		<span id="showAnswerList_title">맞춘 합: </span>
+		    		<span id="showAnswerList_cont"></span>
+		    		
+		    	</div>				
+			</div>
+		</div>
+
+	    <div id="disp">
+	    	<table id="showTable" border="1" style="border-collapse: collapse;">
+				  <tr>
+				    <td id="img1"></td>
+				    <td id="img2"></td>
+				    <td id="img3"></td>
+				  </tr>
+				  <tr>
+				    <td id="img4"></td>
+				    <td id="img5"></td>
+				    <td id="img6"></td>
+				  </tr>
+				  <tr>
+				    <td id="img7"></td>
+				    <td id="img8"></td>
+				    <td id="img9"></td>
+				  </tr>
+			</table>
+	    </div>
+	    
+	    <div id="hintArea">
+	    	<button id="btnHint" onclick="printHap()">힌트보기: 클릭 시 1점이 감점됩니다.</button>
+	    	<div id="showHap"></div>
+	    </div>
+	    
+ 
+    	<!-- The Modal -->
+    	<div id="myModal" class="modal">
+ 			<!-- Modal content -->
+      		<div class="modal-content"></div>
+    	</div>
+    	
+    	<div id="roundModal" class="modal">
+ 			<!-- Modal content -->
+ 			<div id="roundModal-content"></div>
+    	</div>
+    	
+	    <script>
+	    	gameMaker()
+	    </script>
+    
+	</div>
+
+</body>
+</html>
