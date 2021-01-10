@@ -5,7 +5,7 @@ var mongoose = require('mongoose');
 var db = null;
 /*
 try{
-	db = mongoose.connect('mongodb://jihun:30tmchungin8!@cluster0-gfzco.gcp.mongodb.net:27017/jihun', 
+	db = mongoose.connect('mongodb://jihun:*************@cluster0-gfzco.gcp.mongodb.net:27017/jihun', /* 암호 마스킹처리 */
 			{ useNewUrlParser: true },
 			{ dbName : 'gyulhap'}
 	);
@@ -17,7 +17,7 @@ try{
 	}
 }
 
-var url = 'mongodb://jihun:30tmchungin8!@cluster0-gfzco.gcp.mongodb.net:27017/jihun';
+var url = 'mongodb://jihun:*************@cluster0-gfzco.gcp.mongodb.net:27017/jihun'; /* 암호 마스킹처리 */
 var url2 = 'mongodb://localhost:27017/jihun'
 mongoose.connect(url,
 		{ useNewUrlParser: true },
@@ -33,7 +33,7 @@ mongoose.connect(url,
 */
 
 /*
-var uri = "mongodb://jihun:30tmchungin8!@cluster0-gfzco.gcp.mongodb.net:27017/jihun";
+var uri = "mongodb://jihun:*************@cluster0-gfzco.gcp.mongodb.net:27017/jihun"; /* 암호 마스킹처리 */
 mongoose.connect(uri, { useNewUrlParser: true }
 		//{ dbName : 'gyulhap'}
 );
@@ -52,7 +52,7 @@ module.exports = function() {
 		if(process.env.NODE_ENV !== "production"){
 			mongoose.set("debug", true);
 		}
-		mongoose.connect('mongodb://jihun:30tmchungin8!@cluster0-gfzco.gcp.mongodb.net:27017/jihun', 
+		mongoose.connect('mongodb://jihun:*************@cluster0-gfzco.gcp.mongodb.net:27017/jihun', /* 암호 마스킹처리 */
 			{ dbName : 'gyulhap' }, (error) => {
 			if(error) {
 				console.log("DB ERROR : ", error);
