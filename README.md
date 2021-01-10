@@ -13,7 +13,8 @@
 
 
 ## Developing
-
+- 2021.01.10 Git Push
+- 보완점: 플레이기록 DB연동 필요
 
 
 ### Tools
