@@ -23,6 +23,10 @@ body {
     height: 2px;
     background-color: #f8585b;
 }
+#disp{
+	margin-top: 5%;
+	text-align: center;
+}
 #showAnswerList_title{
 	margin-left: 20%;
 }
@@ -80,6 +84,10 @@ a{
 	text-align: center;
 	margin-top: 3%;
 }
+#goGame{
+	text-align: center;
+	margin-top: 3%;
+}
 
 		/* The Modal (background) */
         .modal {
@@ -118,7 +126,23 @@ a{
   src="https://code.jquery.com/jquery-3.4.1.js"
   integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
   crossorigin="anonymous"></script>
-
+  <script type="text/javascript">
+  
+  /* 이어하기 버튼 클릭 시, 아이디/패스워드 입력 받을 모달 창 등장 */
+  function getInfo(){
+	  document.getElementById("saveModal").innerHTML = 
+	  		"<div class='modal-content'>"
+	  		+"<form action = '/users' name = 'form_getInfo' method = 'post'>"
+	  		+"<legend>기록을 저장한 ID/PW 입력</legend>"
+	  		+"ID : <input type = 'text' name = 'name'/><br>"
+	  		+"PW : <input type = 'password' name = 'pw'/><br>"
+	  		+"</form>"
+	  		+"<input type = 'submit' value = '이어하기'/>"
+	  		+"<input type = 'button' onclick = \" location.href = '/' \" value = '새로하기'/>"
+	  document.getElementById("saveModal").style.display = "block";
+  }
+  
+  </script>
 </head>
 <body onbeforeunload="closeIt();">
 
@@ -132,6 +156,19 @@ a{
 	    <div id="disp">
 	    	<iframe width="560" height="315" src="https://www.youtube.com/embed/QUVbVeWz5cs" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 	    </div>
+	    
+	    <div id="goGame">
+	    	<button id="btnGoGame_1" onclick = " location.href = '/' ">새로하기</button>
+	    	<button id="btnGoGame_2" onclick = "getInfo()">이어하기</button>
+	    	<button id="btnGoGame_3" href="#">함께하기</button>
+	    </div>
+	    
+	    <!-- The Modal -->    	
+    	<div id="saveModal" class="modal">
+ 			<!-- Modal content -->
+ 			<div id="saveModal-content"></div>
+    	</div>
+	    
 	</div>
 
 </body>

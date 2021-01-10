@@ -112,6 +112,14 @@ a{
             border: 1px solid #888;
             width: 50%; /* Could be more or less, depending on screen size */                          
         }
+        #saveModal-content {
+        	text-align: center;
+            background-color: #fefefe;
+            margin: 40% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 50%; /* Could be more or less, depending on screen size */                          
+        }
 
 </style>
 <script
@@ -348,6 +356,19 @@ a{
         	}, 1300);
     	}
     	
+    	/* 저장하기버튼클릭 및 빠져나가려고 할 때, saveModal이 등장 */
+    	if(){
+    		document.getElementById("saveModal").innerHTML = 
+        		"<div class='modal-content'>"
+        		+"<p>입력한 정답: "+userClickeds+"</p>"
+        		+"<p>"+message+"</p>"
+        		+"</div>"
+        	document.getElementById("myModal").style.display = "block";
+        	setTimeout(function() {
+        		$("#myModal").fadeOut()
+        	}, 1300);
+    	}
+    	
     	// document.getElementById("showMessage").innerHTML = message
     	// -> 모달 사용으로 인해 폐지
     	
@@ -457,7 +478,6 @@ a{
 	    	<div id="showHap"></div>
 	    </div>
 	    
- 
     	<!-- The Modal -->
     	<div id="myModal" class="modal">
  			<!-- Modal content -->
@@ -467,6 +487,11 @@ a{
     	<div id="roundModal" class="modal">
  			<!-- Modal content -->
  			<div id="roundModal-content"></div>
+    	</div>
+    	
+    	<div id="saveModal" class="modal">
+ 			<!-- Modal content -->
+ 			<div id="saveModal-content"></div>
     	</div>
     	
 	    <script>
